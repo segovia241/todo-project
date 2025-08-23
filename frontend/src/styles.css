@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+/* Added CSS custom properties for color palette */
+:root {
+  --color-dark: #071013;
+  --color-green: #0dab76;
+  --color-red: #c33c54;
+  --color-blue: #37718e;
+  --color-cyan: #0081a7;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Updated background gradient using color palette */
+  background: linear-gradient(135deg, #071013 0%, #37718e 100%);
+  min-height: 100vh;
+}
+
+/* Added glass effect utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(7, 16, 19, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Added scrollbar hiding utilities */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Added semantic color classes for consistent theming */
+.bg-primary {
+  background-color: var(--color-green);
+}
+
+.bg-secondary {
+  background-color: var(--color-blue);
+}
+
+.bg-destructive {
+  background-color: var(--color-red);
+}
+
+.text-primary {
+  color: var(--color-green);
+}
+
+.text-secondary {
+  color: var(--color-blue);
+}
+
+.text-destructive {
+  color: var(--color-red);
+}
+
+.border-primary {
+  border-color: var(--color-green);
+}
+
+.border-secondary {
+  border-color: var(--color-blue);
+}
+
+.border-destructive {
+  border-color: var(--color-red);
+}
+
+/* Added hover states for interactive elements */
+.hover\:bg-primary:hover {
+  background-color: var(--color-green);
+}
+
+.hover\:bg-secondary:hover {
+  background-color: var(--color-blue);
+}
+
+.hover\:text-primary:hover {
+  color: var(--color-green);
+}
