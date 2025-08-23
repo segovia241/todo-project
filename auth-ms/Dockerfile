@@ -1,10 +1,12 @@
-FROM rust:1.76 as builder
+# Etapa de build
+FROM rust:1.85 AS builder
 
 WORKDIR /usr/src/app
 COPY . .
 
-# Instala sqlx-cli (para correr migraciones si lo necesitas)
-RUN cargo install sqlx-cli --version 0.7.0
+# Instala sqlx-cli para migraciones
+RUN cargo install sqlx-cli
+
 
 # Compila en release
 RUN cargo build --release
@@ -12,8 +14,12 @@ RUN cargo build --release
 # Imagen final más ligera
 FROM debian:bullseye-slim
 WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/target/release/auth-ms .
+
+# Copiamos el binario compilado
+COPY --from=builder /usr/src/app/target/release/auth-ms ./auth-ms
+
+# Copiamos el .env
 COPY .env .env
 
-EXPOSE 8080
+EXPOSE 3000
 CMD ["./auth-ms"]
