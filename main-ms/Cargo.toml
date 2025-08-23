@@ -1,5 +1,5 @@
 [package]
-name = "todo-backend-rust"
+name = "main-ms"
 version = "0.1.0"
 edition = "2024"
 
