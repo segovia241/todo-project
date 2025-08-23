@@ -16,10 +16,6 @@ logs
 *.swo
 *.pid
 
-# Entorno
-*.env
-!.env.example
-
 # IDE
 .vscode/*
 !.vscode/extensions.json

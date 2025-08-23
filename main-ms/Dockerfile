@@ -15,10 +15,10 @@ FROM debian:bullseye-slim
 WORKDIR /usr/src/app
 
 # Copiamos el binario compilado
-COPY --from=builder /usr/src/app/target/release/todo-backend-rust ./todo-backend-rust
+COPY --from=builder /usr/src/app/target/release/main-ms ./main-ms
 
 # Copiamos ejemplo de env
 COPY .env.example .env
 
 EXPOSE 8081
-CMD ["./todo-backend-rust"]
+CMD ["./main-ms"]

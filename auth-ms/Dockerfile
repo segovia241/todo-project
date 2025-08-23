@@ -12,8 +12,8 @@ RUN cargo build --release
 # Imagen final más ligera
 FROM debian:bullseye-slim
 WORKDIR /usr/src/app
-COPY --from=builder /usr/src/app/target/release/auth-backend .
+COPY --from=builder /usr/src/app/target/release/auth-ms .
 COPY .env .env
 
 EXPOSE 8080
-CMD ["./auth-backend"]
+CMD ["./auth-ms"]
