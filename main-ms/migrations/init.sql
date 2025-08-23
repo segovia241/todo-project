@@ -134,7 +134,7 @@ CREATE POLICY task_tags_policy ON task_tags
 
 
 -- Otorgar permisos al rol de usuario
-GRANT CONNECT ON DATABASE myapp TO todo_app_user;
+GRANT CONNECT ON DATABASE main_db TO todo_app_user;
 
 GRANT USAGE ON SCHEMA public TO todo_app_user;
 GRANT USAGE ON TYPE task_status TO todo_app_user;

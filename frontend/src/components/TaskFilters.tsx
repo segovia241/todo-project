@@ -1,5 +1,3 @@
-"use client"
-
 import { useTask } from "../contexts/TaskContext"
 import { Search, Filter, X, Tag } from "lucide-react"
 

@@ -19,7 +19,7 @@ import {
   addYears,
   subYears,
 } from "date-fns"
-import { ChevronLeft, ChevronRight, Calendar, X, Flag, Tag } from "lucide-react"
+import { ChevronLeft, ChevronRight, Calendar, X, Flag } from "lucide-react"
 import type { Task } from "../lib/api" // Added Task type import
 
 const TaskCalendar = () => {
@@ -331,20 +331,7 @@ const TaskCalendar = () => {
                               {task.priority}
                             </span>
                             <span className="text-xs text-gray-400 capitalize">{task.status.replace("_", " ")}</span>
-                            {task.tags &&
-                              task.tags.map(
-                                (
-                                  tag: string, // Added string type annotation
-                                ) => (
-                                  <span
-                                    key={tag}
-                                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-[#0081a7] bg-[#0081a7]/10"
-                                  >
-                                    <Tag className="w-3 h-3" />
-                                    {tag}
-                                  </span>
-                                ),
-                              )}
+                            
                           </div>
                         </div>
                       </div>

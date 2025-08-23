@@ -1,7 +1,6 @@
 import { createAuthHeaders } from "../config"
 import { tagApi } from "./tags"
-
-const API_BASE_URL = "http://localhost:8080"
+import { API_BASE_URL } from "../config"
 
 const handleApiResponse = async (response: Response) => {
   if (!response.ok) {
@@ -22,8 +21,8 @@ interface ApiResponse {
 export const taskApi = {
   async getTasks(_filters: any = {}): Promise<ApiResponse> {
     try {
-      console.log("[v0] Making GET request to /api/v1/tasks")
-      const response = await fetch(`${API_BASE_URL}/api/v1/tasks`, {
+      console.log("[v0] Making GET request to /tasks")
+      const response = await fetch(`${API_BASE_URL}/tasks`, {
         method: "GET",
         headers: createAuthHeaders(),
       })
@@ -63,8 +62,8 @@ export const taskApi = {
 
   async getTask(id: string): Promise<ApiResponse> {
     try {
-      console.log("[v0] Making GET request to /api/v1/tasks/" + id)
-      const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${id}`, {
+      console.log("[v0] Making GET request to /tasks/" + id)
+      const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
         method: "GET",
         headers: createAuthHeaders(),
       })
@@ -96,7 +95,7 @@ export const taskApi = {
 
   async createTask(task: any): Promise<ApiResponse> {
     try {
-      console.log("[v0] Making POST request to /api/v1/tasks")
+      console.log("[v0] Making POST request to /tasks")
 
       // construir payload sin project_id vacío
       const payload: any = {
@@ -111,7 +110,7 @@ export const taskApi = {
         payload.project_id = task.project_id
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/tasks`, {
+      const response = await fetch(`${API_BASE_URL}/tasks`, {
         method: "POST",
         headers: createAuthHeaders("POST"),
         body: JSON.stringify(payload),
@@ -159,8 +158,8 @@ export const taskApi = {
         )
       )
 
-      console.log("[v0] Making PUT request to /api/v1/tasks/" + id)
-      const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${id}`, {
+      console.log("[v0] Making PUT request to /tasks/" + id)
+      const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
         method: "PUT",
         headers: createAuthHeaders("PUT"),
         body: JSON.stringify(payload),
@@ -202,8 +201,8 @@ export const taskApi = {
 
   async deleteTask(id: string): Promise<ApiResponse> {
     try {
-      console.log("[v0] Making DELETE request to /api/v1/tasks/" + id)
-      const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${id}`, {
+      console.log("[v0] Making DELETE request to /tasks/" + id)
+      const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
         method: "DELETE",
         headers: createAuthHeaders("DELETE"),
       })

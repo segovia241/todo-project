@@ -1,5 +1,3 @@
-"use client"
-
 import { CheckSquare, User, LogOut } from "lucide-react"
 import { useState } from "react"
 import { authApi } from "../lib/api"

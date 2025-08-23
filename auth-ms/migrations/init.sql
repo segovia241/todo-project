@@ -256,7 +256,7 @@ $$;
 -- ==========================
 -- CONCEDER PERMISOS
 -- ==========================
-GRANT CONNECT ON DATABASE myapp TO app_user;
+GRANT CONNECT ON DATABASE auth_db TO app_user;
 GRANT USAGE ON SCHEMA public TO app_user;
 
 GRANT EXECUTE ON FUNCTION verify_login_credentials TO app_user;

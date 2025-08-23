@@ -1,62 +1,30 @@
+use tower_http::cors::{CorsLayer, Any};
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
-
-use axum::{
-    http::{HeaderValue, Method, Request},
-    middleware::Next,
-    response::Response,
-    middleware::from_fn,
-};
 
 mod routes;
 mod db;
 pub mod utils;
-
-// Middleware CORS siguiendo docs.rs
-// Middleware CORS siguiendo docs.rs
-async fn cors(req: Request<axum::body::Body>, next: Next) -> Response {
-    // Responder preflight OPTIONS
-    if req.method() == Method::OPTIONS {
-        let mut res = Response::new("".into());
-        let headers = res.headers_mut();
-        headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
-        headers.insert(
-            "Access-Control-Allow-Methods",
-            HeaderValue::from_static("GET,POST,PUT,DELETE,OPTIONS"),
-        );
-        headers.insert(
-            "Access-Control-Allow-Headers",
-            HeaderValue::from_static("Authorization, Content-Type"),
-        );
-        return res;
-    }
-
-    let mut res = next.run(req).await;
-    let headers = res.headers_mut();
-    headers.insert("Access-Control-Allow-Origin", HeaderValue::from_static("*"));
-    headers.insert(
-        "Access-Control-Allow-Methods",
-        HeaderValue::from_static("GET,POST,PUT,DELETE,OPTIONS"),
-    );
-    headers.insert(
-        "Access-Control-Allow-Headers",
-        HeaderValue::from_static("Authorization, Content-Type"),
-    );
-    res
-}
 
 #[tokio::main]
 async fn main() {
     // Conexión a DB
     let pool = db::connect().await;
 
-    // Cargar rutas desde el módulo routes y aplicar middleware CORS
+    // 👇 Configuración CORRECTA de CORS con tower-http
+    let cors = CorsLayer::new()
+        .allow_origin(Any) // Permite cualquier origen
+        .allow_methods(Any) // Permite cualquier método
+        .allow_headers(Any) // Permite cualquier header
+        .allow_credentials(false); // Si no usas cookies, false está bien
+
+    // Cargar rutas y aplicar CORS
     let app = routes::app()
         .with_state(pool)
-        .layer(from_fn(cors));
+        .layer(cors); // 👈 Aplica el layer de CORS
 
-    // Dirección del servidor
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    // Dirección del servidor - IMPORTANTE para Docker
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080)); // 👈 Cambia a 0.0.0.0
     println!("🚀 Servidor escuchando en http://{}", addr);
 
     // Crear listener

@@ -1,11 +1,9 @@
-"use client"
-
 import type React from "react"
 
 import { useState } from "react"
 import { useTask } from "../contexts/TaskContext"
 import { format } from "date-fns"
-import { Calendar, Flag, Tag, MoreVertical, Edit, Trash2, CheckCircle2, Circle, Clock, X } from "lucide-react"
+import { Calendar, Flag, MoreVertical, Edit, Trash2, CheckCircle2, Circle, Clock, X } from "lucide-react"
 import TaskForm from "./TaskForm"
 import type { Task } from "../lib/types"
 
@@ -143,11 +141,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
                 <div className="flex flex-wrap gap-2">
                   {task.tags.map((tag) => (
                     <span
-                      key={tag}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-[#0081a7] bg-[#0081a7]/10"
+                      key={tag.id}
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
+                      style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
                     >
-                      <Tag className="w-3 h-3" />
-                      {tag}
+                      {tag.display_name}
                     </span>
                   ))}
                 </div>
@@ -189,7 +187,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <h3 className={`font-medium ${task.status === "done" ? "line-through text-gray-400" : "text-white"}`}>
-              {task.id}
+              {task.title}
             </h3>
 
             <div className="relative">
@@ -243,13 +241,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             )}
 
             {task.tags &&
+              task.tags.length > 0 &&
               task.tags.map((tag) => (
                 <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-[#0081a7] bg-[#0081a7]/10"
+                  key={tag.id}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
+                  style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
                 >
-                  <Tag className="w-3 h-3" />
-                  {tag}
+                  {tag.display_name}
                 </span>
               ))}
           </div>

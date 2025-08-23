@@ -9,6 +9,7 @@ use chrono::{DateTime, Utc};
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres, Row};
+use tower_http::cors::CorsLayer;
 use std::{sync::Arc};
 use uuid::Uuid;
 use validator::Validate;
@@ -88,7 +89,6 @@ impl IntoResponse for AppError {
         (status, body).into_response()
     }
 }
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
@@ -118,7 +118,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/api/login", post(login))
         .route("/api/me", get(get_current_user))
         .with_state(state)
-        .layer(tower_http::cors::CorsLayer::permissive());
+        .layer(CorsLayer::permissive());
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
     println!("Server running on http://localhost:3000");

@@ -1,5 +1,3 @@
-"use client"
-
 import { useTask } from "../contexts/TaskContext"
 import { CheckCircle2, Clock, Circle, TrendingUp } from "lucide-react"
 

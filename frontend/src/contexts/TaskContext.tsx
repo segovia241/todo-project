@@ -1,5 +1,3 @@
-"use client"
-
 import type React from "react"
 import { createContext, useContext, useState, useEffect, useMemo, type ReactNode } from "react"
 import { taskApi, projectApi, tagApi, type Task } from "../lib/api"
