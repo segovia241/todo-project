@@ -1,16 +1,26 @@
+# Rust
 /target
-auth-ms/target
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+**/target
+**/*.rs.bk
+Cargo.lock  # quita esto si quieres subir Cargo.lock
+
+# Node / Frontend
 node_modules
 dist
 dist-ssr
-*.local
+
+# Logs y temporales
+logs
+*.log
+*.swp
+*.swo
+*.pid
+
+# Entorno
+*.env
+!.env.example
+
+# IDE
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -20,23 +30,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-*.env
-!*.env.example
-**/*.rs.bk
-Cargo.lock
-*.swp
-*.swo
-.env.local
-.env.*.local
-coverage
-.tmp
-.cache
-.parcel-cache
-*.pid
-*.seed
-*.tgz
-*.out
-*.zip
-*.tar.gz
-*.rar
-target/
