@@ -1,4 +1,5 @@
 /target
+auth-ms/target
 logs
 *.log
 npm-debug.log*
@@ -38,3 +39,4 @@ coverage
 *.zip
 *.tar.gz
 *.rar
+target/

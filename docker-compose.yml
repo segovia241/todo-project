@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  auth-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+
+  main-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: main_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - main-data:/var/lib/postgresql/data
+
+  auth-ms:
+    build: ./auth-ms
+    env_file: ./auth-ms/.env
+    depends_on:
+      - auth-db
+    ports:
+      - "8081:8080"
+
+  main-ms:
+    build: ./main-ms
+    env_file: ./main-ms/.env
+    depends_on:
+      - main-db
+      - auth-ms
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    env_file: ./frontend/.env
+    ports:
+      - "5173:5173"
+    depends_on:
+      - main-ms
+
+volumes:
+  auth-data:
+  main-data:
