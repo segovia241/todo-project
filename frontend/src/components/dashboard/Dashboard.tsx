@@ -132,21 +132,20 @@ const Dashboard = () => {
                   <div className="flex items-center bg-[#071013]/50 rounded-lg p-1 border border-[#37718e]/30">
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-md transition-colors ${
-                        viewMode === "list"
+                      className={`p-2 rounded-md transition-colors ${viewMode === "list"
                           ? "bg-[#0dab76] text-white shadow-sm"
                           : "text-gray-300 hover:text-white hover:bg-[#37718e]/20"
-                      }`}
+                        }`}
                     >
                       <List className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setViewMode("calendar")}
-                      className={`p-2 rounded-md transition-colors ${
-                        viewMode === "calendar"
+                      disabled // Aquí lo deshabilitamos
+                      className={`p-2 rounded-md transition-colors ${viewMode === "calendar"
                           ? "bg-[#0dab76] text-white shadow-sm"
-                          : "text-gray-300 hover:text-white hover:bg-[#37718e]/20"
-                      }`}
+                          : "text-gray-500 cursor-not-allowed" // Cambia el estilo al deshabilitado
+                        }`}
                     >
                       <Calendar className="w-4 h-4" />
                     </button>
@@ -161,6 +160,7 @@ const Dashboard = () => {
                     <span className="hidden sm:inline">Add Task</span>
                   </button>
                 </div>
+
               </div>
 
               {/* Content */}
