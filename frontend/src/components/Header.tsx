@@ -40,7 +40,6 @@ const Header = () => {
     localStorage.removeItem("authToken")
     setUserData(null)
     setShowUserPopup(false)
-    // Redirect to login or refresh page
     window.location.reload()
   }
 

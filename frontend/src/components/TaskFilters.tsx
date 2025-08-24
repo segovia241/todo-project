@@ -8,7 +8,6 @@ const TaskFilters = () => {
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
     
-    // Construir y mostrar la URL simulada
     const queryParams = new URLSearchParams()
     
     Object.entries(newFilters).forEach(([filterKey, filterValue]) => {
@@ -37,7 +36,6 @@ const TaskFilters = () => {
   const clearFilters = () => {
     setFilters({})
     
-    // Mostrar URL base al limpiar filtros
     console.log("URL actual:", window.location.pathname)
   }
 

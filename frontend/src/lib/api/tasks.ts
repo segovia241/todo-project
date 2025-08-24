@@ -30,7 +30,6 @@ export const taskApi = {
       console.log("[v0] Response status:", response.status)
       const data = await handleApiResponse(response)
 
-      // Obtener tags para cada tarea
       const tasksWithTags = await Promise.all(
         (data.tasks || []).map(async (task: any) => {
           const tagsResponse = await this.getTaskTags(task.id)
@@ -71,7 +70,6 @@ export const taskApi = {
       console.log("[v0] Response status:", response.status)
       const data = await handleApiResponse(response)
 
-      // Obtener tags de la tarea
       const tagsResponse = await this.getTaskTags(id)
 
       const transformedTask = {
@@ -97,7 +95,6 @@ export const taskApi = {
     try {
       console.log("[v0] Making POST request to /tasks")
 
-      // construir payload sin project_id vacío
       const payload: any = {
         title: task.title,
         description: task.description,
@@ -119,15 +116,6 @@ export const taskApi = {
       console.log("[v0] Response status:", response.status)
       const data = await handleApiResponse(response)
 
-      // Agregar tags si se proporcionaron
-      if (data.task_id && task.tags && task.tags.length > 0) {
-        await Promise.all(
-          task.tags.map((tagId: string) => 
-            this.addTagToTask(data.task_id, tagId)
-          )
-        )
-      }
-
       return {
         success: true,
         data: { id: data.task_id },
@@ -144,16 +132,13 @@ export const taskApi = {
 
   async updateTask(id: string, updates: any): Promise<ApiResponse> {
     try {
-      // Filtrar propiedades vacías, nulas o indefinidas, y especialmente project_id vacío
       const payload: any = Object.fromEntries(
         Object.entries(updates).filter(
           ([key, value]) => 
             value !== undefined && 
             value !== null && 
             value !== "" &&
-            // Si es project_id y está vacío, no lo incluimos
             !(key === 'project_id' && (value === "" || value === null || value === undefined)) &&
-            // Excluir tags del payload principal ya que se manejan por separado
             key !== 'tags'
         )
       )
@@ -168,20 +153,14 @@ export const taskApi = {
       console.log("[v0] Response status:", response.status)
       const data = await handleApiResponse(response)
 
-      // Manejar actualización de tags si se proporcionaron
       if (updates.tags !== undefined) {
-        // Primero obtener los tags actuales
         const currentTagsResponse = await this.getTaskTags(id)
         const currentTagIds = currentTagsResponse.success ? currentTagsResponse.data.map((tag: any) => tag.id) : []
         
-        // Determinar tags a agregar y eliminar
         const newTagIds = updates.tags || []
-        const tagsToAdd = newTagIds.filter((tagId: string) => !currentTagIds.includes(tagId))
         const tagsToRemove = currentTagIds.filter((tagId: string) => !newTagIds.includes(tagId))
 
-        // Ejecutar operaciones de tags
         await Promise.all([
-          ...tagsToAdd.map((tagId: string) => this.addTagToTask(id, tagId)),
           ...tagsToRemove.map((tagId: string) => tagApi.removeTagFromTask(id, tagId))
         ])
       }
@@ -241,27 +220,6 @@ export const taskApi = {
         success: false,
         message: error instanceof Error ? error.message : "Failed to fetch task tags",
         data: [],
-      }
-    }
-  },
-
-  async addTagToTask(taskId: string, tagId: string): Promise<ApiResponse> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/task_tags/tasks/${taskId}/tags/${tagId}`, {
-        method: "POST",
-        headers: createAuthHeaders("POST"),
-      })
-
-      const data = await handleApiResponse(response)
-
-      return {
-        success: data.added || false,
-        message: data.message,
-      }
-    } catch (error) {
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : "Failed to add tag to task",
       }
     }
   },

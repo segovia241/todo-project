@@ -14,14 +14,14 @@ const ProjectManager = () => {
   })
 
   const colors = [
-    "#0dab76", // Primary green
-    "#37718e", // Secondary blue
-    "#c33c54", // Accent red
-    "#0081a7", // Tertiary blue
-    "#f77f00", // Orange
-    "#fcbf49", // Yellow
-    "#d62828", // Red
-    "#003049", // Dark blue
+    "#0dab76",
+    "#37718e",
+    "#c33c54",
+    "#0081a7",
+    "#f77f00",
+    "#fcbf49",
+    "#d62828",
+    "#003049",
   ]
 
   const handleSubmit = async (e: React.FormEvent) => {

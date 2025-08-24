@@ -21,7 +21,7 @@ export const authApi = {
           user: {
             id: data.user_id,
             email: email,
-            name: email.split("@")[0], // Temporary name from email
+            name: email.split("@")[0],
           },
         }
       }
@@ -51,7 +51,6 @@ export const authApi = {
       const data = await handleApiResponse(response)
 
       if (data.user_id) {
-        // Después del registro, intentamos iniciar sesión automáticamente
         const loginResponse = await this.login(email, password)
         if (loginResponse.success) {
           return {
@@ -92,7 +91,6 @@ export const authApi = {
 
       const data = await handleApiResponse(response)
 
-      // Ajustamos según la estructura real de la respuesta
       return {
         success: true,
         user: {

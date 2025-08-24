@@ -1,8 +1,6 @@
-"use client"
-
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useTask } from "../contexts/TaskContext"
 import { X, Calendar, Flag, Folder, Tag, Plus } from "lucide-react"
 import type { Task } from "../lib/types"
@@ -13,36 +11,18 @@ interface TaskFormProps {
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
-  const { createTask, updateTask, projects, tags } = useTask()
+  const { createTask, updateTask, projects } = useTask()
   const [formData, setFormData] = useState({
     title: task?.title || "",
     description: task?.description || "",
     priority: (task?.priority || "med") as "low" | "med" | "high",
     due_date: task?.due_date ? task.due_date.split("T")[0] : "",
     project_id: task?.project_id || "",
-    tags: task?.tags ? task.tags.map((tag: any) => tag.id) : ([] as string[]),
+    tags: task?.tags ? task.tags.map((tag: any) => tag.display_name || tag.name || tag) : ([] as string[]),
     status: (task?.status || "todo") as "todo" | "doing" | "done",
   })
   const [newTag, setNewTag] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [tagSuggestions, setTagSuggestions] = useState<any[]>([])
-  const [showSuggestions, setShowSuggestions] = useState(false)
-
-  useEffect(() => {
-    if (newTag.trim()) {
-      const suggestions = tags
-        .filter(
-          (tag) =>
-            tag.display_name.toLowerCase().includes(newTag.toLowerCase()) && 
-            !formData.tags.includes(tag.id)
-        )
-        .slice(0, 5)
-      setTagSuggestions(suggestions)
-      setShowSuggestions(suggestions.length > 0)
-    } else {
-      setShowSuggestions(false)
-    }
-  }, [newTag, tags, formData.tags])
 
   const formatDateForAPI = (dateString: string): string => {
     if (!dateString) return ""
@@ -55,13 +35,15 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
     e.preventDefault()
     if (!formData.title.trim()) return
 
+    console.log("Tags implementados:", formData.tags)
+
     setIsLoading(true)
     try {
       const formattedData = {
         ...formData,
         due_date: formatDateForAPI(formData.due_date),
         project_id: formData.project_id || "",
-        tags: formData.tags || []
+        tags: formData.tags || [],
       }
 
       const apiPayload = formattedData
@@ -79,35 +61,23 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
     }
   }
 
-  const addTag = (tagId?: string, tagName?: string) => {
-    if (tagId) {
-      // Agregar tag existente por ID
-      if (!formData.tags.includes(tagId)) {
-        setFormData({
-          ...formData,
-          tags: [...formData.tags, tagId],
-        })
-      }
-    } else if (tagName) {
-      // Crear nuevo tag (si la API lo soporta)
-      // Esta funcionalidad requeriría una implementación adicional
-      console.log("Crear nuevo tag:", tagName)
+  const addTag = () => {
+    const tagName = newTag.trim()
+    if (tagName && !formData.tags.includes(tagName)) {
+      setFormData({
+        ...formData,
+        tags: [...formData.tags, tagName],
+      })
+      setNewTag("")
     }
-    setNewTag("")
-    setShowSuggestions(false)
   }
 
-  const removeTag = (tagIdToRemove: string) => {
+  const removeTag = (tagToRemove: string) => {
     setFormData({
       ...formData,
-      tags: formData.tags.filter((tagId) => tagId !== tagIdToRemove),
+      tags: formData.tags.filter((tag) => tag !== tagToRemove),
     })
   }
-
-  // Obtener información completa de los tags seleccionados
-  const selectedTagsInfo = formData.tags
-    .map(tagId => tags.find(tag => tag.id === tagId))
-    .filter((tag): tag is NonNullable<typeof tag> => tag !== undefined)
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -214,27 +184,22 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
             </select>
           </div>
 
-          {/* Tags - Ahora habilitado */}
+          {/* Tags*/}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               <Tag className="w-4 h-4 inline mr-1" />
               Tags
             </label>
 
-            {/* Selected Tags */}
-            {selectedTagsInfo.length > 0 && (
+            {formData.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">
-                {selectedTagsInfo.map((tag) => (
+                {formData.tags.map((tag, index) => (
                   <span
-                    key={tag.id}
+                    key={index}
                     className="inline-flex items-center gap-1 px-2 py-1 bg-primary/20 text-primary rounded-full text-xs border border-primary/30"
                   >
-                    {tag.display_name}
-                    <button 
-                      type="button" 
-                      onClick={() => removeTag(tag.id)} 
-                      className="hover:text-primary/70"
-                    >
+                    #{tag}
+                    <button type="button" onClick={() => removeTag(tag)} className="hover:text-primary/70">
                       <X className="w-3 h-3" />
                     </button>
                   </span>
@@ -242,40 +207,22 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
               </div>
             )}
 
-            {/* Add Tag Input */}
-            <div className="relative">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-                  className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
-                  placeholder="Search or add tag..."
-                />
-                <button
-                  type="button"
-                  onClick={() => addTag(undefined, newTag)}
-                  className="px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-
-              {showSuggestions && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg z-10 max-h-32 overflow-y-auto">
-                  {tagSuggestions.map((suggestion) => (
-                    <button
-                      key={suggestion.id}
-                      type="button"
-                      onClick={() => addTag(suggestion.id)}
-                      className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
-                    >
-                      {suggestion.display_name}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+                placeholder="Add tag name..."
+              />
+              <button
+                type="button"
+                onClick={addTag}
+                className="px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
             </div>
           </div>
 

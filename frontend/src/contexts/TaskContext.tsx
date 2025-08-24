@@ -74,7 +74,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [taskTags, setTaskTags] = useState<Record<string, string[]>>({})
 
-  // Helper function to get task tags
   const getTaskTags = async (taskId: string): Promise<string[]> => {
     try {
       const response = await tagApi.getTaskTags(taskId)
@@ -88,7 +87,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     }
   }
 
-  // Fetch tags for all tasks when tasks change
   useEffect(() => {
     const fetchAllTaskTags = async () => {
       const tagsMap: Record<string, string[]> = {}
@@ -123,7 +121,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       const searchLower = filters.search.toLowerCase()
       filtered = filtered.filter(
         (task: Task) =>
-          task.title?.toLowerCase().includes(searchLower) || 
+          task.title?.toLowerCase().includes(searchLower) ||
           task.description?.toLowerCase().includes(searchLower),
       )
     }
@@ -187,7 +185,24 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const createTask = async (task: Omit<Task, "id" | "user_id" | "created_at" | "updated_at">) => {
     try {
       const response = await taskApi.createTask(task)
-      if (response.success) {
+      console.log("GA-DEBUG", task)
+
+      if (response.success && response.data && response.data.id) {
+        const taskId = response.data.id
+
+        // Crear múltiples tags si existen
+        if (task.tags && task.tags.length > 0) {
+          await tagApi.createMultipleTags(task.tags)
+          // Asociar cada tag al task
+          for (const tagName of task.tags) {
+            const tagResponse = await tagApi.getTagIdByName(tagName)
+            console.log("LOLCITO", tagResponse)
+            if (tagResponse.success && tagResponse.data) {
+              await tagApi.addTagToTask(taskId, tagResponse.data)
+            }
+          }
+        }
+
         await refreshTasks()
       }
     } catch (error) {

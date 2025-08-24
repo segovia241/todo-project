@@ -18,7 +18,6 @@ const Dashboard = () => {
   const { setFilters, filters } = useTask()
   const { logout } = useAuth()
 
-  // Sync URL params with filters
   useEffect(() => {
     const urlFilters: any = {}
 
@@ -34,7 +33,6 @@ const Dashboard = () => {
     setFilters(urlFilters)
   }, [searchParams, setFilters])
 
-  // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams()
 
@@ -141,10 +139,10 @@ const Dashboard = () => {
                     </button>
                     <button
                       onClick={() => setViewMode("calendar")}
-                      disabled // Aquí lo deshabilitamos
+                      disabled
                       className={`p-2 rounded-md transition-colors ${viewMode === "calendar"
                           ? "bg-[#0dab76] text-white shadow-sm"
-                          : "text-gray-500 cursor-not-allowed" // Cambia el estilo al deshabilitado
+                          : "text-gray-500 cursor-not-allowed"
                         }`}
                     >
                       <Calendar className="w-4 h-4" />

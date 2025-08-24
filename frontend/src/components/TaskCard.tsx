@@ -5,7 +5,7 @@ import { useTask } from "../contexts/TaskContext"
 import { format } from "date-fns"
 import { Calendar, Flag, MoreVertical, Edit, Trash2, CheckCircle2, Circle, Clock, X } from "lucide-react"
 import TaskForm from "./TaskForm"
-import type { Task } from "../lib/types"
+import type { Tag, Task } from "../lib/types"
 
 interface TaskCardProps {
   task: Task
@@ -139,9 +139,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               <div>
                 <h4 className="text-sm font-medium text-gray-300 mb-2">Tags</h4>
                 <div className="flex flex-wrap gap-2">
-                  {task.tags.map((tag) => (
+                  {(task.tags as unknown as Tag[]).map((tag) => (
                     <span
-                      key={tag.id}
+                      key={tag.display_name} // mejor usar algo único
                       className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
                       style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
                     >
@@ -242,9 +242,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
             {task.tags &&
               task.tags.length > 0 &&
-              task.tags.map((tag) => (
+              (task.tags as unknown as Tag[]).map((tag) => (
                 <span
-                  key={tag.id}
+                  key={tag.display_name} // mejor usar algo único
                   className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
                   style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
                 >

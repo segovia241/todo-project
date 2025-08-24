@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { useTask } from "../contexts/TaskContext"
 import {
@@ -20,7 +18,7 @@ import {
   subYears,
 } from "date-fns"
 import { ChevronLeft, ChevronRight, Calendar, X, Flag } from "lucide-react"
-import type { Task } from "../lib/api" // Added Task type import
+import type { Task } from "../lib/api"
 
 const TaskCalendar = () => {
   const { tasks, filteredTasks } = useTask()
@@ -30,7 +28,7 @@ const TaskCalendar = () => {
   const [viewMode, setViewMode] = useState<"month" | "week" | "year">("month")
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [showDayTasks, setShowDayTasks] = useState(false)
-  const [selectedDayTasks, setSelectedDayTasks] = useState<Task[]>([]) // Added proper Task type
+  const [selectedDayTasks, setSelectedDayTasks] = useState<Task[]>([])
 
   const getDateRange = () => {
     if (viewMode === "week") {
@@ -51,14 +49,13 @@ const TaskCalendar = () => {
   const { days, months } = getDateRange()
 
   const getTasksForDay = (date: Date) => {
-    return safeTasks.filter((task: Task) => task && task.due_date && isSameDay(new Date(task.due_date), date)) // Added Task type annotation
+    return safeTasks.filter((task: Task) => task && task.due_date && isSameDay(new Date(task.due_date), date))
   }
 
   const getTasksForMonth = (date: Date) => {
     const monthStart = startOfMonth(date)
     const monthEnd = endOfMonth(date)
     return safeTasks.filter((task: Task) => {
-      // Added Task type annotation
       if (!task || !task.due_date) return false
       const taskDate = new Date(task.due_date)
       return taskDate >= monthStart && taskDate <= monthEnd
@@ -191,7 +188,7 @@ const TaskCalendar = () => {
                     <div className="text-xs text-gray-400">{monthTasks.length} tasks</div>
                     {monthTasks.slice(0, 3).map(
                       (
-                        task: Task, // Added Task type annotation
+                        task: Task,
                       ) => (
                         <div
                           key={task.id}
@@ -258,7 +255,7 @@ const TaskCalendar = () => {
                     <div className="space-y-1">
                       {dayTasks.slice(0, viewMode === "week" ? 5 : 3).map(
                         (
-                          task: Task, // Added Task type annotation
+                          task: Task,
                         ) => (
                           <div
                             key={task.id}
@@ -307,10 +304,10 @@ const TaskCalendar = () => {
 
             <div className="space-y-3">
               {selectedDayTasks
-                .filter((task: Task) => task && task.title) // Added Task type annotation
+                .filter((task: Task) => task && task.title)
                 .map(
                   (
-                    task: Task, // Added Task type annotation
+                    task: Task,
                   ) => (
                     <div key={task.id} className="bg-[#071013]/40 rounded-lg p-4 border border-white/10">
                       <div className="flex items-start justify-between gap-3">
