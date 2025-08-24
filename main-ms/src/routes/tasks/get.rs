@@ -15,6 +15,10 @@ pub struct GetTasksQuery {
     pub status: Option<String>,
     pub priority: Option<String>,
     pub project_id: Option<Uuid>,
+    pub search: Option<String>,
+    pub sort_by: Option<String>,
+    pub page: Option<i32>,
+    pub limit: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
@@ -35,6 +39,10 @@ pub struct TaskResponse {
 pub struct TasksResponse {
     pub tasks: Vec<TaskResponse>,
     pub message: String,
+    pub total_count: i64,
+    pub page: i32,
+    pub limit: i32,
+    pub total_pages: i32,
 }
 
 // Endpoint para obtener todas las tareas del usuario con filtros opcionales
@@ -89,14 +97,51 @@ pub async fn get_tasks(
         }
     }
 
-    // Usar query directamente y luego deserializar manualmente
-    match sqlx::query(
-        "SELECT json_agg(t) as tasks FROM get_user_tasks($1, $2::task_status, $3::task_priority, $4) t"
+    if let Some(ref sort_by) = query.sort_by {
+        if !["title", "priority", "due_date"].contains(&sort_by.as_str()) {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(ErrorResponse {
+                    error: "Invalid sort_by. Must be one of: title, priority, due_date".to_string(),
+                }),
+            )
+                .into_response();
+        }
+    }
+
+    let page = query.page.unwrap_or(1).max(1);
+    let limit = query.limit.unwrap_or(10).clamp(1, 100);
+    let offset = (page - 1) * limit;
+
+    let total_count_result = sqlx::query(
+        "SELECT COUNT(*) as count FROM get_user_tasks_count($1, $2::task_status, $3::task_priority, $4, $5)"
     )
     .bind(user_id)
-    .bind(query.status)
-    .bind(query.priority)
+    .bind(&query.status)
+    .bind(&query.priority)
     .bind(query.project_id)
+    .bind(&query.search)
+    .fetch_one(&pool)
+    .await;
+
+    let total_count: i64 = match total_count_result {
+        Ok(row) => row.try_get("count").unwrap_or(0),
+        Err(_) => 0,
+    };
+
+    let total_pages = ((total_count as f64) / (limit as f64)).ceil() as i32;
+
+    match sqlx::query(
+        "SELECT json_agg(t) as tasks FROM get_user_tasks_paginated($1, $2::task_status, $3::task_priority, $4, $5, $6, $7, $8) t"
+    )
+    .bind(user_id)
+    .bind(&query.status)
+    .bind(&query.priority)
+    .bind(query.project_id)
+    .bind(&query.search)
+    .bind(&query.sort_by)
+    .bind(limit)
+    .bind(offset)
     .fetch_one(&pool)
     .await
     {
@@ -110,6 +155,10 @@ pub async fn get_tasks(
                             let response = TasksResponse {
                                 tasks,
                                 message: "Tasks retrieved successfully".to_string(),
+                                total_count,
+                                page,
+                                limit,
+                                total_pages,
                             };
                             (StatusCode::OK, Json(response)).into_response()
                         }
@@ -129,6 +178,10 @@ pub async fn get_tasks(
                     let response = TasksResponse {
                         tasks: Vec::new(),
                         message: "No tasks found".to_string(),
+                        total_count,
+                        page,
+                        limit,
+                        total_pages,
                     };
                     (StatusCode::OK, Json(response)).into_response()
                 }
@@ -146,6 +199,7 @@ pub async fn get_tasks(
         }
     }
 }
+
 
 // Endpoint para obtener una tarea específica por ID
 pub async fn get_task_by_id(

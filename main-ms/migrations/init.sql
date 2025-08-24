@@ -385,16 +385,48 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-
--- Leer tareas de usuario
-DROP FUNCTION IF EXISTS get_user_tasks(UUID, task_status, task_priority, UUID);
-CREATE FUNCTION get_user_tasks(
+-- Función para contar tareas
+DROP FUNCTION IF EXISTS get_user_tasks_count(UUID, task_status, task_priority, UUID, TEXT);
+CREATE OR REPLACE FUNCTION get_user_tasks_count(
     p_user_id UUID,
     p_status task_status DEFAULT NULL,
     p_priority task_priority DEFAULT NULL,
-    p_project_id UUID DEFAULT NULL
+    p_project_id UUID DEFAULT NULL,
+    p_search TEXT DEFAULT NULL
 )
-RETURNS TABLE (
+RETURNS TABLE(count BIGINT)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    PERFORM set_config('app.current_user_id', p_user_id::text, false);
+    
+    RETURN QUERY
+    SELECT COUNT(*)::BIGINT
+    FROM tasks t
+    WHERE t.user_id = p_user_id
+      AND (p_status IS NULL OR t.status = p_status)
+      AND (p_priority IS NULL OR t.priority = p_priority)
+      AND (p_project_id IS NULL OR t.project_id = p_project_id)
+      AND (p_search IS NULL OR 
+           t.title ILIKE '%' || p_search || '%' OR 
+           t.description ILIKE '%' || p_search || '%');
+END;
+$$;
+
+-- Función para obtener tareas paginadas con filtros
+DROP FUNCTION IF EXISTS get_user_tasks_paginated(UUID, task_status, task_priority, UUID, TEXT, TEXT, INTEGER, INTEGER);
+CREATE OR REPLACE FUNCTION get_user_tasks_paginated(
+    p_user_id UUID,
+    p_status task_status DEFAULT NULL,
+    p_priority task_priority DEFAULT NULL,
+    p_project_id UUID DEFAULT NULL,
+    p_search TEXT DEFAULT NULL,
+    p_sort_by TEXT DEFAULT 'created_at',
+    p_limit INTEGER DEFAULT 10,
+    p_offset INTEGER DEFAULT 0
+)
+RETURNS TABLE(
     id UUID,
     user_id UUID,
     project_id UUID,
@@ -405,29 +437,81 @@ RETURNS TABLE (
     due_date TIMESTAMPTZ,
     created_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ
-) AS $$
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 BEGIN
     PERFORM set_config('app.current_user_id', p_user_id::text, false);
     
-    RETURN QUERY
-    SELECT t.id, t.user_id, t.project_id, t.title, t.description, 
-           t.status, t.priority, t.due_date, t.created_at, t.updated_at
-    FROM tasks t
-    WHERE t.user_id = p_user_id
-    AND (p_status IS NULL OR t.status = p_status)
-    AND (p_priority IS NULL OR t.priority = p_priority)
-    AND (p_project_id IS NULL OR t.project_id = p_project_id)
-    ORDER BY 
-        CASE t.priority 
-            WHEN 'high' THEN 1 
-            WHEN 'med' THEN 2 
-            WHEN 'low' THEN 3 
-        END,
-        t.due_date NULLS LAST,
-        t.created_at DESC;
+    IF p_sort_by = 'title' THEN
+        RETURN QUERY
+        SELECT t.*
+        FROM tasks t
+        WHERE t.user_id = p_user_id
+          AND (p_status IS NULL OR t.status = p_status)
+          AND (p_priority IS NULL OR t.priority = p_priority)
+          AND (p_project_id IS NULL OR t.project_id = p_project_id)
+          AND (p_search IS NULL OR 
+               t.title ILIKE '%' || p_search || '%' OR 
+               t.description ILIKE '%' || p_search || '%')
+        ORDER BY t.title, t.created_at DESC
+        LIMIT p_limit
+        OFFSET p_offset;
+        
+    ELSIF p_sort_by = 'due_date' THEN
+        RETURN QUERY
+        SELECT t.*
+        FROM tasks t
+        WHERE t.user_id = p_user_id
+          AND (p_status IS NULL OR t.status = p_status)
+          AND (p_priority IS NULL OR t.priority = p_priority)
+          AND (p_project_id IS NULL OR t.project_id = p_project_id)
+          AND (p_search IS NULL OR 
+               t.title ILIKE '%' || p_search || '%' OR 
+               t.description ILIKE '%' || p_search || '%')
+        ORDER BY t.due_date NULLS LAST, t.created_at DESC
+        LIMIT p_limit
+        OFFSET p_offset;
+        
+    ELSIF p_sort_by = 'priority' THEN
+        RETURN QUERY
+        SELECT t.*
+        FROM tasks t
+        WHERE t.user_id = p_user_id
+          AND (p_status IS NULL OR t.status = p_status)
+          AND (p_priority IS NULL OR t.priority = p_priority)
+          AND (p_project_id IS NULL OR t.project_id = p_project_id)
+          AND (p_search IS NULL OR 
+               t.title ILIKE '%' || p_search || '%' OR 
+               t.description ILIKE '%' || p_search || '%')
+        ORDER BY 
+            CASE t.priority
+                WHEN 'high' THEN 1
+                WHEN 'med' THEN 2
+                WHEN 'low' THEN 3
+            END,
+            t.created_at DESC
+        LIMIT p_limit
+        OFFSET p_offset;
+        
+    ELSE
+        RETURN QUERY
+        SELECT t.*
+        FROM tasks t
+        WHERE t.user_id = p_user_id
+          AND (p_status IS NULL OR t.status = p_status)
+          AND (p_priority IS NULL OR t.priority = p_priority)
+          AND (p_project_id IS NULL OR t.project_id = p_project_id)
+          AND (p_search IS NULL OR 
+               t.title ILIKE '%' || p_search || '%' OR 
+               t.description ILIKE '%' || p_search || '%')
+        ORDER BY t.created_at DESC
+        LIMIT p_limit
+        OFFSET p_offset;
+    END IF;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
+$$;
 
 -- Leer tarea específica
 DROP FUNCTION IF EXISTS get_task(UUID, UUID);
