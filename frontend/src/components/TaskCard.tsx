@@ -75,8 +75,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
   if (showDetails && !isEditing) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-[#37718e]/20 backdrop-blur-md border border-[#37718e]/30 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-custom flex items-center justify-center p-4 z-50">
+        <div className="bg-[#37718e]/20 backdrop-blur-custom border border-[#37718e]/30 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-white">{task.title}</h3>
             <button
@@ -176,7 +176,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
   return (
     <div
-      className="bg-[#37718e]/10 backdrop-blur-sm border border-[#37718e]/20 rounded-lg p-4 hover:bg-[#37718e]/15 transition-all duration-200 cursor-pointer"
+      className="bg-[#37718e]/10 backdrop-blur-custom border border-[#37718e]/20 rounded-lg p-4 hover:bg-[#37718e]/15 transition-all duration-200 cursor-pointer"
       onClick={handleCardClick}
     >
       <div className="flex items-start gap-3">
@@ -196,7 +196,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               </button>
 
               {showMenu && (
-                <div className="absolute right-0 top-8 bg-[#37718e]/20 backdrop-blur-md border border-[#37718e]/30 rounded-lg shadow-lg py-2 w-32 z-10">
+                <div className="absolute right-0 top-8 bg-[#37718e]/20 backdrop-blur-custom border border-[#37718e]/30 rounded-lg shadow-lg py-2 w-32 z-10">
                   <button
                     onClick={handleEdit}
                     className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:text-white hover:bg-white/10 flex items-center gap-2"

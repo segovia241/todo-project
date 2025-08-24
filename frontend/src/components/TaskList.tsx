@@ -155,7 +155,7 @@ const TaskList = () => {
           <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
             <button
               onClick={scrollToTop}
-              className="bg-white/10 backdrop-blur-sm border border-white/20 p-2 rounded-full shadow-lg hover:bg-white/20 transition-all duration-300 cursor-pointer"
+              className="bg-white/10 backdrop-blur-custom border border-white/20 p-2 rounded-full shadow-lg hover:bg-white/20 transition-all duration-300 cursor-pointer"
             >
               <ChevronUp className="w-4 h-4 text-white" />
             </button>
@@ -166,7 +166,7 @@ const TaskList = () => {
           <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
             <button
               onClick={scrollToBottom}
-              className="bg-white/10 backdrop-blur-sm border border-white/20 p-2 rounded-full shadow-lg hover:bg-white/20 transition-all duration-300 cursor-pointer"
+              className="bg-white/10 backdrop-blur-custom border border-white/20 p-2 rounded-full shadow-lg hover:bg-white/20 transition-all duration-300 cursor-pointer"
             >
               <ChevronDown className="w-4 h-4 text-white" />
             </button>

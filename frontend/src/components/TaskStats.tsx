@@ -14,7 +14,7 @@ const TaskStats = () => {
   const completionRate = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0
 
   return (
-    <div className="bg-[#37718e]/15 backdrop-blur-md border border-[#37718e]/30 rounded-xl p-4">
+    <div className="bg-[#37718e]/15 backdrop-blur-custom border border-[#37718e]/30 rounded-xl p-4">
       <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
         <TrendingUp className="w-4 h-4" />
         Overview

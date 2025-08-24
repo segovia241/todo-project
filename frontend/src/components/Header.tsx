@@ -48,7 +48,7 @@ const Header = () => {
 
     return createPortal(
       <div
-        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/50 backdrop-blur-custom flex items-center justify-center p-4"
         style={{ zIndex: 999999 }}
         onClick={() => setShowUserPopup(false)}
       >
@@ -100,7 +100,7 @@ const Header = () => {
   }
 
   return (
-    <header className="bg-[#071013]/95 backdrop-blur-sm border-b border-[#37718e]/30 shadow-lg relative">
+    <header className="bg-[#071013]/95 backdrop-blur-custom border-b border-[#37718e]/30 shadow-lg relative">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo - kept for pages without sidebar */}

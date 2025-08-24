@@ -67,7 +67,7 @@ const Dashboard = () => {
           className={`
             fixed lg:static inset-y-0 left-0 z-40 lg:z-0
             w-80 lg:w-80 xl:w-96
-            bg-[#37718e]/10 backdrop-blur-md border border-[#37718e]/20
+            bg-[#37718e]/10 backdrop-blur-custom border border-[#37718e]/20
             transform transition-transform duration-300 ease-in-out
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
             lg:block rounded-r-2xl lg:rounded-none lg:border-r lg:border-t-0 lg:border-b-0 lg:border-l-0
@@ -111,7 +111,7 @@ const Dashboard = () => {
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden h-full">
           <div className="flex-1 overflow-hidden p-6">
-            <div className="bg-[#37718e]/10 backdrop-blur-md border border-[#37718e]/20 rounded-2xl p-6 h-full flex flex-col">
+            <div className="bg-[#37718e]/10 backdrop-blur-custom border border-[#37718e]/20 rounded-2xl p-6 h-full flex flex-col">
               {/* Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 flex-shrink-0">
                 <div className="flex items-center gap-3">

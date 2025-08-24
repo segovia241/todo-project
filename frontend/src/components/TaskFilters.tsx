@@ -44,7 +44,7 @@ const TaskFilters = () => {
   )
 
   return (
-    <div className="bg-[#37718e]/15 backdrop-blur-md border border-[#37718e]/30 rounded-xl p-4">
+    <div className="bg-[#37718e]/15 backdrop-blur-custom border border-[#37718e]/30 rounded-xl p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-white flex items-center gap-2">
           <Filter className="w-4 h-4" />

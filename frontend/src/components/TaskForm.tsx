@@ -80,7 +80,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-custom flex items-center justify-center p-4 z-50">
       <div className="glass-dark rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl border border-white/20">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
@@ -99,7 +99,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-custom"
               placeholder="Enter task title..."
               required
             />
@@ -111,7 +111,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none backdrop-blur-sm"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none backdrop-blur-custom"
               rows={3}
               placeholder="Enter task description..."
             />
@@ -124,7 +124,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-custom"
               >
                 <option value="todo">To Do</option>
                 <option value="doing">In Progress</option>
@@ -142,7 +142,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
             <select
               value={formData.priority}
               onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-custom"
             >
               <option value="low">Low</option>
               <option value="med">Medium</option>
@@ -160,7 +160,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
               type="date"
               value={formData.due_date}
               onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-custom"
             />
           </div>
 
@@ -173,7 +173,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
             <select
               value={formData.project_id}
               onChange={(e) => setFormData({ ...formData, project_id: e.target.value })}
-              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+              className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-custom"
             >
               <option value="">No project</option>
               {projects.map((project) => (
@@ -213,7 +213,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-                className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-sm"
+                className="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-custom"
                 placeholder="Add tag name..."
               />
               <button
@@ -231,10 +231,21 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
             <button
               type="submit"
               disabled={isLoading || !formData.title.trim()}
-              className="flex-1 bg-gradient-to-r from-primary to-secondary text-white py-2 rounded-lg font-medium hover:opacity-90 transition-all duration-200 disabled:opacity-50 shadow-sm"
+              className={`flex-1 text-white py-2 rounded-lg font-medium transition-all duration-200 shadow-sm
+      ${isLoading || !formData.title.trim()
+                  ? "bg-secondary opacity-50 cursor-not-allowed"
+                  : "bg-primary hover:opacity-90"
+                }`}
             >
-              {isLoading ? (task ? "Updating..." : "Creating...") : task ? "Update Task" : "Create Task"}
+              {isLoading
+                ? task
+                  ? "Updating..."
+                  : "Creating..."
+                : task
+                  ? "Update Task"
+                  : "Create Task"}
             </button>
+
             <button
               type="button"
               onClick={onClose}
@@ -243,6 +254,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
               Cancel
             </button>
           </div>
+
         </form>
       </div>
     </div>

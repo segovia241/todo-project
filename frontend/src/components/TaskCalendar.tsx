@@ -119,7 +119,7 @@ const TaskCalendar = () => {
         </h3>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-1">
+          <div className="flex items-center bg-white/10 backdrop-blur-custom border border-white/20 rounded-lg p-1">
             <button
               onClick={() => setViewMode("year")}
               className={`px-3 py-1 text-sm rounded-md transition-colors ${
@@ -288,8 +288,8 @@ const TaskCalendar = () => {
 
       {/* Day Tasks Modal */}
       {showDayTasks && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-[#37718e]/20 backdrop-blur-md border border-[#37718e]/30 rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-custom flex items-center justify-center p-4 z-50">
+          <div className="bg-[#37718e]/20 backdrop-blur-custom border border-[#37718e]/30 rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-semibold text-white">
                 Tasks for {selectedDate && format(selectedDate, "MMMM dd, yyyy")}

@@ -50,7 +50,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
             <div className="absolute inset-0 bg-black/10"></div>
             <div className="relative z-10">
               <div className="mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-6 backdrop-blur-sm">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-6 backdrop-blur-custom">
                   <Sparkles className="w-8 h-8 text-white" />
                 </div>
                 <h1 className="text-3xl lg:text-4xl font-bold mb-4">Join Us Today!</h1>
@@ -59,7 +59,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
 
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-custom">
                     <Users className="w-6 h-6" />
                   </div>
                   <div>
@@ -69,7 +69,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess }) => {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-custom">
                     <Zap className="w-6 h-6" />
                   </div>
                   <div>

@@ -60,7 +60,7 @@ const ProjectManager = () => {
   }
 
   return (
-    <div className="bg-[#071013]/40 backdrop-blur-sm border border-[#37718e]/30 rounded-2xl p-6">
+    <div className="bg-[#071013]/40 backdrop-blur-custom border border-[#37718e]/30 rounded-2xl p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <FolderOpen className="w-6 h-6 text-[#0dab76]" />
@@ -77,7 +77,7 @@ const ProjectManager = () => {
 
       {/* Project Form */}
       {showForm && (
-        <div className="mb-6 p-4 bg-[#37718e]/20 backdrop-blur-sm border border-[#37718e]/30 rounded-xl">
+        <div className="mb-6 p-4 bg-[#37718e]/20 backdrop-blur-custom border border-[#37718e]/30 rounded-xl">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-white">{editingProject ? "Edit Project" : "Create New Project"}</h3>
             <button onClick={handleCancel} className="p-1 hover:bg-[#37718e]/30 rounded-lg transition-colors">
