@@ -1,6 +1,7 @@
 import { createAuthHeaders } from "../config"
 import { tagApi } from "./tags"
 import { API_BASE_URL } from "../config"
+import { Task } from "../types"
 
 const handleApiResponse = async (response: Response) => {
   if (!response.ok) {
@@ -21,29 +22,33 @@ interface ApiResponse {
 export const taskApi = {
   async getTasks(_filters: any = {}): Promise<ApiResponse> {
     try {
-      console.log("[v0] Making GET request to /tasks")
-      const response = await fetch(`${API_BASE_URL}/tasks`, {
+      
+      const url = new URL(`${API_BASE_URL}/tasks`);
+      if (_filters) {
+        Object.keys(_filters).forEach(key => {
+          if (_filters[key] !== undefined && _filters[key] !== null && _filters[key] !== '') {
+            
+            url.searchParams.append(key, _filters[key]);
+            console.log(url.toString());
+          }
+        });
+      }
+      
+      const response = await fetch(url.toString(), {
         method: "GET",
         headers: createAuthHeaders(),
       })
 
-      console.log("[v0] Response status:", response.status)
       const data = await handleApiResponse(response)
 
-      const tasksWithTags = await Promise.all(
-        (data.tasks || []).map(async (task: any) => {
-          const tagsResponse = await this.getTaskTags(task.id)
-          return {
-            ...task,
-            tags: tagsResponse.success ? tagsResponse.data : [],
-            due_date: task.due_date ? new Date(task.due_date).toISOString() : null,
-          }
-        })
-      )
+      const tasks = (data.tasks || []).map((task: Task) => ({
+        ...task,
+        due_date: task.due_date ? new Date(task.due_date).toISOString() : null,
+      }))
 
       return {
         success: true,
-        tasks: tasksWithTags,
+        tasks: tasks,
         projects: [],
         tags: [],
       }
@@ -134,9 +139,9 @@ export const taskApi = {
     try {
       const payload: any = Object.fromEntries(
         Object.entries(updates).filter(
-          ([key, value]) => 
-            value !== undefined && 
-            value !== null && 
+          ([key, value]) =>
+            value !== undefined &&
+            value !== null &&
             value !== "" &&
             !(key === 'project_id' && (value === "" || value === null || value === undefined)) &&
             key !== 'tags'
@@ -156,7 +161,7 @@ export const taskApi = {
       if (updates.tags !== undefined) {
         const currentTagsResponse = await this.getTaskTags(id)
         const currentTagIds = currentTagsResponse.success ? currentTagsResponse.data.map((tag: any) => tag.id) : []
-        
+
         const newTagIds = updates.tags || []
         const tagsToRemove = currentTagIds.filter((tagId: string) => !newTagIds.includes(tagId))
 

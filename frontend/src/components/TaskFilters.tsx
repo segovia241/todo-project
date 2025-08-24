@@ -20,8 +20,6 @@ const TaskFilters = () => {
       }
     })
     
-    const simulatedUrl = `${window.location.pathname}?${queryParams.toString()}`
-    console.log("URL actual:", simulatedUrl)
   }
 
   const toggleTagFilter = (tagName: string) => {
@@ -35,8 +33,6 @@ const TaskFilters = () => {
 
   const clearFilters = () => {
     setFilters({})
-    
-    console.log("URL actual:", window.location.pathname)
   }
 
   const hasActiveFilters = Object.keys(filters).some(
@@ -153,11 +149,10 @@ const TaskFilters = () => {
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">Sort by</label>
           <select
-            value={filters.sort_by || "created_at"}
+            value={filters.sort_by || "due_date"}
             onChange={(e) => updateFilter("sort_by", e.target.value)}
             className="w-full px-3 py-2 bg-[#071013]/50 border border-[#37718e]/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0dab76] focus:border-transparent"
           >
-            <option value="created_at">Created Date</option>
             <option value="due_date">Due Date</option>
             <option value="priority">Priority</option>
             <option value="title">Title</option>

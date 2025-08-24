@@ -35,8 +35,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
     e.preventDefault()
     if (!formData.title.trim()) return
 
-    console.log("Tags implementados:", formData.tags)
-
     setIsLoading(true)
     try {
       const formattedData = {

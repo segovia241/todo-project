@@ -45,7 +45,7 @@ export interface Task {
   status: "todo" | "doing" | "done"
   priority: "low" | "med" | "high"
   due_date?: string
-  tags: string[]
+  tags: Tag[]
   created_at: string
   updated_at: string
 }

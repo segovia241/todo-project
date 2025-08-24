@@ -192,9 +192,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
 
         // Crear múltiples tags si existen
         if (task.tags && task.tags.length > 0) {
-          await tagApi.createMultipleTags(task.tags)
+          await tagApi.createMultipleTags(task.tags as unknown as string[])
           // Asociar cada tag al task
-          for (const tagName of task.tags) {
+          for (const tagName of task.tags as unknown as string[]) {
             const tagResponse = await tagApi.getTagIdByName(tagName)
             console.log("LOLCITO", tagResponse)
             if (tagResponse.success && tagResponse.data) {

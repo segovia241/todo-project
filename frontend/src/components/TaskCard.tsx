@@ -5,7 +5,7 @@ import { useTask } from "../contexts/TaskContext"
 import { format } from "date-fns"
 import { Calendar, Flag, MoreVertical, Edit, Trash2, CheckCircle2, Circle, Clock, X } from "lucide-react"
 import TaskForm from "./TaskForm"
-import type { Tag, Task } from "../lib/types"
+import type { Task } from "../lib/types"
 
 interface TaskCardProps {
   task: Task
@@ -75,8 +75,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
   if (showDetails && !isEditing) {
     return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-custom flex items-center justify-center p-4 z-50">
-        <div className="bg-[#37718e]/20 backdrop-blur-custom border border-[#37718e]/30 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="bg-[#37718e]/20 backdrop-blur-md border border-[#37718e]/30 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-white">{task.title}</h3>
             <button
@@ -139,9 +139,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               <div>
                 <h4 className="text-sm font-medium text-gray-300 mb-2">Tags</h4>
                 <div className="flex flex-wrap gap-2">
-                  {(task.tags as unknown as Tag[]).map((tag) => (
+                  {task.tags.map((tag) => (
                     <span
-                      key={tag.display_name} // mejor usar algo único
+                      key={tag.id}
                       className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
                       style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
                     >
@@ -176,7 +176,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
   return (
     <div
-      className="bg-[#37718e]/10 backdrop-blur-custom border border-[#37718e]/20 rounded-lg p-4 hover:bg-[#37718e]/15 transition-all duration-200 cursor-pointer"
+      className="bg-[#37718e]/10 backdrop-blur-sm border border-[#37718e]/20 rounded-lg p-4 hover:bg-[#37718e]/15 transition-all duration-200 cursor-pointer"
       onClick={handleCardClick}
     >
       <div className="flex items-start gap-3">
@@ -196,7 +196,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
               </button>
 
               {showMenu && (
-                <div className="absolute right-0 top-8 bg-[#37718e]/20 backdrop-blur-custom border border-[#37718e]/30 rounded-lg shadow-lg py-2 w-32 z-10">
+                <div className="absolute right-0 top-8 bg-[#37718e]/20 backdrop-blur-md border border-[#37718e]/30 rounded-lg shadow-lg py-2 w-32 z-10">
                   <button
                     onClick={handleEdit}
                     className="w-full px-3 py-2 text-left text-sm text-gray-300 hover:text-white hover:bg-white/10 flex items-center gap-2"
@@ -242,9 +242,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
 
             {task.tags &&
               task.tags.length > 0 &&
-              (task.tags as unknown as Tag[]).map((tag) => (
+              task.tags.map((tag) => (
                 <span
-                  key={tag.display_name} // mejor usar algo único
+                  key={tag.id}
                   className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white"
                   style={{ backgroundColor: `${tag.color}20`, color: tag.color }}
                 >

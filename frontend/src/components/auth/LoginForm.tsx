@@ -23,7 +23,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
 
     const success = await login(email, password)
     if (success) {
-      console.log("[v0] Login successful, navigating to dashboard")
       navigate("/dashboard")
       onSuccess?.()
     } else {

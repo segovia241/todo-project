@@ -8,11 +8,13 @@ import TaskForm from "../TaskForm"
 import TaskFilters from "../TaskFilters"
 import TaskCalendar from "../TaskCalendar"
 import TaskStats from "../TaskStats"
-import { Plus, Calendar, List, Menu, X, LogOut } from "lucide-react"
+import { Plus, Calendar, List, Menu, X, LogOut, FolderPlus } from "lucide-react"
+import ProjectManager from "../ProjectManager"
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [showTaskForm, setShowTaskForm] = useState(false)
+  const [showProjectManager, setShowProjectManager] = useState(false)
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list")
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { setFilters, filters } = useTask()
@@ -130,24 +132,34 @@ const Dashboard = () => {
                   <div className="flex items-center bg-[#071013]/50 rounded-lg p-1 border border-[#37718e]/30">
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-md transition-colors ${viewMode === "list"
+                      className={`p-2 rounded-md transition-colors ${
+                        viewMode === "list"
                           ? "bg-[#0dab76] text-white shadow-sm"
                           : "text-gray-300 hover:text-white hover:bg-[#37718e]/20"
-                        }`}
+                      }`}
                     >
                       <List className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setViewMode("calendar")}
                       disabled
-                      className={`p-2 rounded-md transition-colors ${viewMode === "calendar"
+                      className={`p-2 rounded-md transition-colors ${
+                        viewMode === "calendar"
                           ? "bg-[#0dab76] text-white shadow-sm"
                           : "text-gray-500 cursor-not-allowed"
-                        }`}
+                      }`}
                     >
                       <Calendar className="w-4 h-4" />
                     </button>
                   </div>
+
+                  <button
+                    onClick={() => setShowProjectManager(true)}
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#37718e] to-[#0dab76] text-white px-4 py-2 rounded-lg hover:from-[#37718e]/90 hover:to-[#0dab76]/90 transition-all duration-200 shadow-lg"
+                  >
+                    <FolderPlus className="w-4 h-4" />
+                    <span className="hidden sm:inline">Create Project</span>
+                  </button>
 
                   {/* Add Task Button */}
                   <button
@@ -158,7 +170,6 @@ const Dashboard = () => {
                     <span className="hidden sm:inline">Add Task</span>
                   </button>
                 </div>
-
               </div>
 
               {/* Content */}
@@ -170,6 +181,25 @@ const Dashboard = () => {
 
       {/* Task Form Modal */}
       {showTaskForm && <TaskForm onClose={() => setShowTaskForm(false)} />}
+
+      {showProjectManager && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#071013] border border-[#37718e]/30 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-white">Manage Projects</h2>
+                <button
+                  onClick={() => setShowProjectManager(false)}
+                  className="p-2 hover:bg-[#37718e]/20 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+              <ProjectManager />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
