@@ -19,36 +19,52 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { setFilters, filters } = useTask()
   const { logout } = useAuth()
+const [isInitialized, setIsInitialized] = useState(false)
 
-  useEffect(() => {
-    const urlFilters: any = {}
+// 1. Solo leer de la URL al montar
+useEffect(() => {
+  const urlFilters: any = {}
+  console.log("INICIALIZANDO DESDE URL")
+  
+  if (searchParams.get("status")) urlFilters.status = searchParams.get("status")
+  if (searchParams.get("priority")) urlFilters.priority = searchParams.get("priority")
+  if (searchParams.get("project_id")) urlFilters.project_id = searchParams.get("project_id")
+  if (searchParams.get("search")) urlFilters.search = searchParams.get("search")
+  if (searchParams.get("tags")) urlFilters.tags = searchParams.get("tags")?.split(",")
+  if (searchParams.get("page")) urlFilters.page = Number.parseInt(searchParams.get("page") || "1")
+  if (searchParams.get("limit")) urlFilters.limit = Number.parseInt(searchParams.get("limit") || "5")
+  if (searchParams.get("sort_by")) urlFilters.sort_by = searchParams.get("sort_by")
+  if (searchParams.get("sort_order")) urlFilters.sort_order = searchParams.get("sort_order")
 
-    if (searchParams.get("status")) urlFilters.status = searchParams.get("status")
-    if (searchParams.get("priority")) urlFilters.priority = searchParams.get("priority")
-    if (searchParams.get("project_id")) urlFilters.project_id = searchParams.get("project_id")
-    if (searchParams.get("search")) urlFilters.search = searchParams.get("search")
-    if (searchParams.get("tags")) urlFilters.tags = searchParams.get("tags")?.split(",")
-    if (searchParams.get("page")) urlFilters.page = Number.parseInt(searchParams.get("page") || "1")
-    if (searchParams.get("sort_by")) urlFilters.sort_by = searchParams.get("sort_by")
-    if (searchParams.get("sort_order")) urlFilters.sort_order = searchParams.get("sort_order")
-
+  if (Object.keys(urlFilters).length > 0) {
     setFilters(urlFilters)
-  }, [searchParams, setFilters])
+  }
+  setIsInitialized(true) // ← Marcar como inicializado
+}, []) // Solo al montar
 
-  useEffect(() => {
-    const params = new URLSearchParams()
+// 2. Solo sincronizar a URL después de la inicialización
+useEffect(() => {
+  if (!isInitialized) return // ← No hacer nada hasta estar inicializado
+  
+  const params = new URLSearchParams()
 
-    if (filters.status) params.set("status", filters.status)
-    if (filters.priority) params.set("priority", filters.priority)
-    if (filters.project_id) params.set("project_id", filters.project_id)
-    if (filters.search) params.set("search", filters.search)
-    if (filters.tags?.length) params.set("tags", filters.tags.join(","))
-    if (filters.page && filters.page > 1) params.set("page", filters.page.toString())
-    if (filters.sort_by) params.set("sort_by", filters.sort_by)
-    if (filters.sort_order) params.set("sort_order", filters.sort_order)
+  if (filters.status) params.set("status", filters.status)
+  if (filters.priority) params.set("priority", filters.priority)
+  if (filters.project_id) params.set("project_id", filters.project_id)
+  if (filters.search) params.set("search", filters.search)
+  if (filters.tags?.length) params.set("tags", filters.tags.join(","))
+  if (filters.page && filters.page > 0) params.set("page", filters.page.toString())
+  if (filters.limit && filters.limit > 0) params.set("limit", filters.limit.toString())
+  if (filters.sort_by) params.set("sort_by", filters.sort_by)
+  if (filters.sort_order) params.set("sort_order", filters.sort_order)
 
+  const currentParams = searchParams.toString()
+  const newParams = params.toString()
+  
+  if (currentParams !== newParams) {
     setSearchParams(params)
-  }, [filters, setSearchParams])
+  }
+}, [filters, setSearchParams, searchParams, isInitialized]) // ← Agregar isInitialized
 
   const handleLogout = () => {
     logout()
@@ -132,22 +148,20 @@ const Dashboard = () => {
                   <div className="flex items-center bg-[#071013]/50 rounded-lg p-1 border border-[#37718e]/30">
                     <button
                       onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-md transition-colors ${
-                        viewMode === "list"
+                      className={`p-2 rounded-md transition-colors ${viewMode === "list"
                           ? "bg-[#0dab76] text-white shadow-sm"
                           : "text-gray-300 hover:text-white hover:bg-[#37718e]/20"
-                      }`}
+                        }`}
                     >
                       <List className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setViewMode("calendar")}
                       disabled
-                      className={`p-2 rounded-md transition-colors ${
-                        viewMode === "calendar"
+                      className={`p-2 rounded-md transition-colors ${viewMode === "calendar"
                           ? "bg-[#0dab76] text-white shadow-sm"
                           : "text-gray-500 cursor-not-allowed"
-                      }`}
+                        }`}
                     >
                       <Calendar className="w-4 h-4" />
                     </button>

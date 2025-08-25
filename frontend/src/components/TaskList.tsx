@@ -32,7 +32,8 @@ const TaskList = () => {
     )
   }
 
-  return (
+  if (!isLoading) {
+    return (
     <div className="space-y-6">
       <div className="text-sm text-gray-400">
         Showing {tasks.length} task{tasks.length !== 1 ? "s" : ""}
@@ -45,6 +46,8 @@ const TaskList = () => {
       </div>
     </div>
   )
+  }
+  
 }
 
 export default TaskList

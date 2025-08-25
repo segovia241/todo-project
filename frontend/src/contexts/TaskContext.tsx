@@ -1,5 +1,7 @@
+"use client"
+
 import type React from "react"
-import { createContext, useContext, useState, useEffect, useMemo, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, useMemo, useCallback, type ReactNode } from "react"
 import { taskApi, projectApi, tagApi, type Task } from "../lib/api"
 
 export interface Project {
@@ -74,7 +76,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [taskTags, setTaskTags] = useState<Record<string, string[]>>({})
 
-  const getTaskTags = async (taskId: string): Promise<string[]> => {
+  const getTaskTags = useCallback(async (taskId: string): Promise<string[]> => {
     try {
       const response = await tagApi.getTaskTags(taskId)
       if (response.success && Array.isArray(response.data)) {
@@ -85,12 +87,15 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       console.error("Error fetching task tags:", error)
       return []
     }
-  }
+  }, [])
 
   useEffect(() => {
-    const fetchAllTaskTags = async () => {
-      const tagsMap: Record<string, string[]> = {}
-      for (const task of tasks) {
+    const fetchMissingTaskTags = async () => {
+      const missingTasks = tasks.filter((task) => !taskTags[task.id])
+      if (missingTasks.length === 0) return
+
+      const tagsMap: Record<string, string[]> = { ...taskTags }
+      for (const task of missingTasks) {
         const tags = await getTaskTags(task.id)
         tagsMap[task.id] = tags
       }
@@ -98,11 +103,12 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     }
 
     if (tasks.length > 0) {
-      fetchAllTaskTags()
+      fetchMissingTaskTags()
     }
-  }, [tasks])
+  }, [tasks, taskTags, getTaskTags])
 
   const filteredTasks = useMemo(() => {
+    
     let filtered = [...tasks]
 
     if (filters.status) {
@@ -121,15 +127,14 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       const searchLower = filters.search.toLowerCase()
       filtered = filtered.filter(
         (task: Task) =>
-          task.title?.toLowerCase().includes(searchLower) ||
-          task.description?.toLowerCase().includes(searchLower),
+          task.title?.toLowerCase().includes(searchLower) || task.description?.toLowerCase().includes(searchLower),
       )
     }
 
     if (filters.tags && filters.tags.length > 0) {
       filtered = filtered.filter((task: Task) => {
         const taskTagIds = taskTags[task.id] || []
-        return filters.tags!.some(filterTag => taskTagIds.includes(filterTag))
+        return filters.tags!.some((filterTag) => taskTagIds.includes(filterTag))
       })
     }
 
@@ -149,6 +154,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
   const refreshTasks = async () => {
     setIsLoading(true)
     try {
+    
       const response = await taskApi.getTasks(filters)
       if (response.success) {
         setTasks(response.tasks || [])
@@ -182,7 +188,7 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     }
   }
 
-  const createTask = async (task: Omit<Task, "id" | "user_id" | "created_at" | "updated_at">) => {
+  const createTask = useCallback(async (task: Omit<Task, "id" | "user_id" | "created_at" | "updated_at">) => {
     try {
       const response = await taskApi.createTask(task)
       console.log("GA-DEBUG", task)
@@ -190,7 +196,6 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
       if (response.success && response.data && response.data.id) {
         const taskId = response.data.id
 
-        // Crear múltiples tags si existen
         if (task.tags && task.tags.length > 0) {
           await tagApi.createMultipleTags(task.tags as unknown as string[])
           // Asociar cada tag al task
@@ -202,48 +207,74 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
             }
           }
         }
-
+        console.log("FITROS DESPUES DE CREATE",filters)
         await refreshTasks()
       }
     } catch (error) {
       console.error("Error creating task:", error)
     }
-  }
+  }, [])
 
-  const updateTask = async (id: string, task: Partial<Task>) => {
+  const updateTask = useCallback(async (id: string, taskUpdates: Partial<Task>) => {
+    // Optimistic update - update UI immediately
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === id ? { ...task, ...taskUpdates, updated_at: new Date().toISOString() } : task,
+      ),
+    )
+
+    // Sync with API in background
     try {
-      const response = await taskApi.updateTask(id, task)
-      if (response.success) {
+      const response = await taskApi.updateTask(id, taskUpdates)
+      if (!response.success) {
+        // Revert optimistic update on failure
+        console.error("Failed to update task, reverting changes")
         await refreshTasks()
       }
     } catch (error) {
       console.error("Error updating task:", error)
+      // Revert optimistic update on error
+      await refreshTasks()
     }
-  }
+  }, [])
 
-  const deleteTask = async (id: string) => {
-    try {
-      const response = await taskApi.deleteTask(id)
-      if (response.success) {
-        await refreshTasks()
+  const deleteTask = useCallback(
+    async (id: string) => {
+      // Store original task for potential rollback
+      const originalTask = tasks.find((task) => task.id === id)
+
+      // Optimistic delete - remove from UI immediately
+      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id))
+
+      // Remove from taskTags as well
+      setTaskTags((prevTags) => {
+        const newTags = { ...prevTags }
+        delete newTags[id]
+        return newTags
+      })
+
+      // Sync with API in background
+      try {
+        const response = await taskApi.deleteTask(id)
+        if (!response.success) {
+          // Revert optimistic delete on failure
+          console.error("Failed to delete task, reverting changes")
+          if (originalTask) {
+            setTasks((prevTasks) => [...prevTasks, originalTask])
+          }
+        }
+      } catch (error) {
+        console.error("Error deleting task:", error)
+        // Revert optimistic delete on error
+        if (originalTask) {
+          setTasks((prevTasks) => [...prevTasks, originalTask])
+        }
       }
-    } catch (error) {
-      console.error("Error deleting task:", error)
-    }
-  }
+    },
+    [tasks],
+  )
 
-  const createProject = async (project: Omit<Project, "id" | "user_id" | "created_at">) => {
-    try {
-      const response = await projectApi.createProject(project)
-      if (response.success) {
-        await refreshProjects()
-      }
-    } catch (error) {
-      console.error("Error creating project:", error)
-    }
-  }
-
-  const updateProject = async (id: string, project: Partial<Project>) => {
+  const updateProject = useCallback(async (id: string, project: Partial<Project>) => {
     try {
       const response = await projectApi.updateProject(id, project)
       if (response.success) {
@@ -252,9 +283,9 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     } catch (error) {
       console.error("Error updating project:", error)
     }
-  }
+  }, [])
 
-  const deleteProject = async (id: string) => {
+  const deleteProject = useCallback(async (id: string) => {
     try {
       const response = await projectApi.deleteProject(id)
       if (response.success) {
@@ -266,7 +297,18 @@ export const TaskProvider: React.FC<TaskProviderProps> = ({ children }) => {
     } catch (error) {
       console.error("Error deleting project:", error)
     }
-  }
+  }, [])
+
+  const createProject = useCallback(async (project: Omit<Project, "id" | "user_id" | "created_at">) => {
+    try {
+      const response = await projectApi.createProject(project)
+      if (response.success) {
+        await refreshProjects()
+      }
+    } catch (error) {
+      console.error("Error creating project:", error)
+    }
+  }, [])
 
   useEffect(() => {
     refreshTasks()

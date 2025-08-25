@@ -21,53 +21,65 @@ interface ApiResponse {
 
 export const taskApi = {
   async getTasks(_filters: any = {}): Promise<ApiResponse> {
+    console.log("filtros usados", _filters);
     try {
-      
       const url = new URL(`${API_BASE_URL}/tasks`);
-      if (_filters) {
+
+      // Validar que el filtro 'page' esté presente y tenga un valor válido
+      if (_filters && _filters.page !== undefined && _filters.page !== null && _filters.page !== '') {
+        // Agregar todos los filtros válidos a la URL
         Object.keys(_filters).forEach(key => {
           if (_filters[key] !== undefined && _filters[key] !== null && _filters[key] !== '') {
-            
             url.searchParams.append(key, _filters[key]);
-            console.log(url.toString());
           }
         });
-      }
-      
-      const response = await fetch(url.toString(), {
-        method: "GET",
-        headers: createAuthHeaders(),
-      })
 
-      const data = await handleApiResponse(response)
-      const tasks = await Promise.all(
-        (data.tasks || []).map(async (task: Task) => {
-          const tagsResponse = await this.getTaskTags(task.id)
-          return {
-            ...task,
-            tags: tagsResponse.success ? tagsResponse.data : [],
-            due_date: task.due_date ? new Date(task.due_date).toISOString() : null,
-          }
-        })
-      )
+        // Realizar el fetch solo si 'page' está presente
+        const response = await fetch(url.toString(), {
+          method: "GET",
+          headers: createAuthHeaders(),
+        });
 
-      return {
-        success: true,
-        tasks: tasks,
-        projects: [],
-        tags: [],
+        const data = await handleApiResponse(response);
+        const tasks = await Promise.all(
+          (data.tasks || []).map(async (task: Task) => {
+            const tagsResponse = await this.getTaskTags(task.id);
+            return {
+              ...task,
+              tags: tagsResponse.success ? tagsResponse.data : [],
+              due_date: task.due_date ? new Date(task.due_date).toISOString() : null,
+            };
+          })
+        );
+
+        return {
+          success: true,
+          tasks: tasks,
+          projects: [],
+          tags: [],
+        };
+      } else {
+        console.warn("El filtro 'page' es obligatorio para obtener las tareas.");
+        return {
+          success: false,
+          message: "El filtro 'page' es obligatorio para obtener las tareas.",
+          tasks: [],
+          projects: [],
+          tags: [],
+        };
       }
     } catch (error) {
-      console.log("[v0] Error in getTasks:", error)
+      console.log("[v0] Error in getTasks:", error);
       return {
         success: false,
         message: error instanceof Error ? error.message : "Failed to fetch tasks",
         tasks: [],
         projects: [],
         tags: [],
-      }
+      };
     }
   },
+
 
   async getTask(id: string): Promise<ApiResponse> {
     try {

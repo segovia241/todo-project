@@ -19,7 +19,6 @@ const TaskFilters = () => {
         }
       }
     })
-    
   }
 
   const toggleTagFilter = (tagName: string) => {
@@ -115,6 +114,39 @@ const TaskFilters = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Pagination Settings */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Page Number */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Page</label>
+            <input
+              type="number"
+              min="1"
+              value={filters.page || 1}
+              onChange={(e) => updateFilter("page", Math.max(1, parseInt(e.target.value) || 1))}
+              className="w-full px-3 py-2 bg-[#071013]/50 border border-[#37718e]/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0dab76] focus:border-transparent"
+              placeholder="Page"
+            />
+          </div>
+
+          {/* Items per Page */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Items per Page</label>
+            <select
+              value={filters.limit || 10}
+              onChange={(e) => updateFilter("limit", parseInt(e.target.value))}
+              className="w-full px-3 py-2 bg-[#071013]/50 border border-[#37718e]/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0dab76] focus:border-transparent"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
         </div>
 
         {tags && tags.length > 0 && (
