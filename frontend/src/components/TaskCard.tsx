@@ -180,8 +180,15 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
       onClick={handleCardClick}
     >
       <div className="flex items-start gap-3">
-        <button onClick={handleStatusChange} className="mt-1 hover:scale-110 transition-transform">
-          {getStatusIcon(task.status)}
+        <button
+          onClick={handleStatusChange}
+          className="mt-1 hover:scale-110 transition-all duration-200 relative group animate-pulse hover:animate-none"
+          title="Click to change status"
+        >
+          <div className="absolute inset-0 bg-white/20 rounded-full scale-150 opacity-0 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300 animate-ping"></div>
+          <div className="relative z-10 p-1 rounded-full bg-white/5 group-hover:bg-white/10 border border-white/10 group-hover:border-white/30 transition-all duration-200">
+            {getStatusIcon(task.status)}
+          </div>
         </button>
 
         <div className="flex-1 min-w-0">
