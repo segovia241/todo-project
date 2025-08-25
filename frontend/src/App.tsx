@@ -7,15 +7,23 @@ import { RegisterForm } from "./components/auth/RegisterForm"
 import ProtectedRoute from "./components/ProtectedRoute"
 import Dashboard from "./components/dashboard/Dashboard"
 
-// Componente para redirigir a dashboard con parámetros por defecto
+// Componente para redirigir a dashboard con parámetros por defecto si faltan
 const DashboardRedirect: React.FC = () => {
   const location = useLocation();
   
-  // Verificar si ya tiene parámetros de consulta
-  const hasQueryParams = location.search !== '';
+  // Parsear los parámetros de consulta existentes
+  const searchParams = new URLSearchParams(location.search);
+  const hasPage = searchParams.has('page');
+  const hasLimit = searchParams.has('limit');
   
-  if (!hasQueryParams) {
-    return <Navigate to="/dashboard?page=1&limit=5" replace />;
+  // Si faltan page o limit, redirigir con los valores por defecto
+  if (!hasPage || !hasLimit) {
+    // Mantener todos los parámetros existentes
+    if (!hasPage) searchParams.set('page', '1');
+    if (!hasLimit) searchParams.set('limit', '5');
+    
+    const newSearch = searchParams.toString();
+    return <Navigate to={`/dashboard?${newSearch}`} replace />;
   }
   
   return (
