@@ -50,6 +50,26 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
     await updateTask(task.id, { status: nextStatus })
   }
 
+  const getNextStatus = () => {
+    const statusOrder = ["todo", "doing", "done"]
+    const currentIndex = statusOrder.indexOf(task.status)
+    const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length]
+    return nextStatus
+  }
+
+  const getStatusDisplayName = (status: string) => {
+    switch (status) {
+      case "todo":
+        return "To Do"
+      case "doing":
+        return "In Progress"
+      case "done":
+        return "Completed"
+      default:
+        return status
+    }
+  }
+
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this task?")) {
       await deleteTask(task.id)
@@ -156,10 +176,23 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
           <div className="flex gap-3 mt-6">
             <button
               onClick={handleEdit}
-              className="flex-1 py-2 bg-[#0dab76] hover:bg-[#0dab76]/80 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="flex-1 py-2 px-3 bg-[#0dab76] hover:bg-[#0dab76]/80 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <Edit className="w-4 h-4" />
               Edit Task
+            </button>
+            <button
+              onClick={handleStatusChange}
+              className="flex-1 py-2 px-3 bg-[#37718e] hover:bg-[#37718e]/80 text-white rounded-lg transition-colors flex items-center justify-center gap-2"
+            >
+              {getStatusIcon(getNextStatus()).type === CheckCircle2 ? (
+                <CheckCircle2 className="w-4 h-4 text-white" />
+              ) : getStatusIcon(getNextStatus()).type === Clock ? (
+                <Clock className="w-4 h-4 text-white" />
+              ) : (
+                <Circle className="w-4 h-4 text-white" />
+              )}
+              Update to {getStatusDisplayName(getNextStatus())}
             </button>
             <button
               onClick={handleDelete}
