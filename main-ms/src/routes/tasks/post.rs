@@ -6,6 +6,7 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use uuid::Uuid;
+use std::env;
 
 use crate::utils::token::extract_user_id;
 use crate::utils::extract_token::{extract_token_from_headers, ErrorResponse};
@@ -31,13 +32,11 @@ pub async fn create_task(
     headers: HeaderMap,
     Json(payload): Json<CreateTaskRequest>,
 ) -> impl IntoResponse {
-    // Extraer el token de los headers
     let token = match extract_token_from_headers(&headers) {
         Ok(token) => token,
         Err(error_response) => return error_response.into_response(),
     };
 
-    // Extraer el user_id usando el token
     let user_id = match extract_user_id(&token).await {
         Ok(id) => id,
         Err(_) => {
@@ -62,20 +61,20 @@ pub async fn create_task(
     }
 
     let status = match payload.status.as_deref() {
-    Some("todo") | Some("doing") | Some("done") => {
-        payload.status.clone().unwrap()
-    }
-    Some(_) => {
-        return (
-            StatusCode::BAD_REQUEST,
-            Json(ErrorResponse {
-                error: "Invalid status. Must be one of: todo, doing, done".to_string(),
-            }),
-        )
-            .into_response()
-    }
-    None => "todo".to_string(),
-};
+        Some("todo") | Some("doing") | Some("done") => {
+            payload.status.clone().unwrap()
+        }
+        Some(_) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(ErrorResponse {
+                    error: "Invalid status. Must be one of: todo, doing, done".to_string(),
+                }),
+            )
+                .into_response()
+        }
+        None => "todo".to_string(),
+    };
 
     let priority = match payload.priority.as_deref() {
         Some("low") | Some("med") | Some("high") | Some("urgent") => payload.priority.clone().unwrap(),
@@ -91,6 +90,21 @@ pub async fn create_task(
         None => "med".to_string(),
     };
 
+    let mut due_date = payload.due_date;
+    
+    let past_dates_enabled = env::var("PAST_DATES_ENABLED")
+        .unwrap_or_else(|_| "false".to_string())
+        .to_lowercase() == "true";
+
+    if !past_dates_enabled {
+        if let Some(date) = due_date {
+            let now = chrono::Utc::now();
+            if date < now {
+                due_date = Some(now);
+            }
+        }
+    }
+
     match sqlx::query_scalar(
         "SELECT create_task($1, $2, $3, $4, $5::task_status, $6::task_priority, $7)"
     )
@@ -100,7 +114,7 @@ pub async fn create_task(
     .bind(payload.description)
     .bind(status)
     .bind(priority)
-    .bind(payload.due_date)
+    .bind(due_date)
     .fetch_one(&pool)
     .await
     {
