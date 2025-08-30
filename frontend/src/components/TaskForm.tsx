@@ -58,27 +58,43 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
     return date.toISOString()
   }
 
+  const isToday = (date: Date): boolean => {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+          date.getMonth() === today.getMonth() &&
+          date.getFullYear() === today.getFullYear();
+  }
+
   const validateDate = (dateString: string): boolean => {
     if (!dateString) return true
     
-    const selectedDate = new Date(dateString)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0) // Reset time to compare only dates
+    const selectedDate = new Date(dateString);
+    selectedDate.setHours(0, 0, 0, 0);
     
-    if (selectedDate < today && pastDatesEnabled === false) {
-      setDateError("Past dates are not allowed")
-      return false
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (isToday(selectedDate)) {
+      setDateError("");
+      return true;
     }
     
-    setDateError("")
-    return true
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (selectedDate < yesterday && pastDatesEnabled === false) {
+      setDateError("Past dates are not allowed");
+      return false;
+    }
+    
+    setDateError("");
+    return true;
   }
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dateValue = e.target.value
     setFormData({ ...formData, due_date: dateValue })
-    
-    // Validate date in real-time
+
     if (pastDatesEnabled !== null) {
       validateDate(dateValue)
     }
@@ -88,7 +104,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
     e.preventDefault()
     if (!formData.title.trim()) return
 
-    // Validate date before submission
     if (formData.due_date && !validateDate(formData.due_date)) {
       return
     }
@@ -135,7 +150,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
     })
   }
 
-  // Show loading while fetching configuration
   if (pastDatesEnabled === null) {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-custom flex items-center justify-center p-4 z-50">

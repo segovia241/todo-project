@@ -19,6 +19,7 @@ const TaskFilters = () => {
         }
       }
     })
+    
   }
 
   const toggleTagFilter = (tagName: string) => {
@@ -116,38 +117,33 @@ const TaskFilters = () => {
           </select>
         </div>
 
-        {/* Pagination Settings */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Page Number */}
+        {tags && tags.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Page</label>
-            <input
-              type="number"
-              min="1"
-              value={filters.page || 1}
-              onChange={(e) => updateFilter("page", Math.max(1, parseInt(e.target.value) || 1))}
-              className="w-full px-3 py-2 bg-[#071013]/50 border border-[#37718e]/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0dab76] focus:border-transparent"
-              placeholder="Page"
-            />
+            <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+              <Tag className="w-4 h-4" />
+              Tags
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => {
+                const isSelected = filters.tags?.includes(tag.display_name) || false
+                return (
+                  <button
+                    key={tag.id}
+                    onClick={() => toggleTagFilter(tag.display_name)}
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
+                      isSelected
+                        ? "text-white bg-[#0dab76] border border-[#0dab76]"
+                        : "text-[#0081a7] bg-[#0081a7]/10 border border-[#0081a7]/20 hover:bg-[#0081a7]/20"
+                    }`}
+                  >
+                    <Tag className="w-3 h-3" />
+                    {tag.display_name}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-
-          {/* Items per Page */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Items per Page</label>
-            <select
-              value={filters.limit || 10}
-              onChange={(e) => updateFilter("limit", parseInt(e.target.value))}
-              className="w-full px-3 py-2 bg-[#071013]/50 border border-[#37718e]/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#0dab76] focus:border-transparent"
-            >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
-          </div>
-        </div>
+        )}
 
         {/* Sort */}
         <div>
