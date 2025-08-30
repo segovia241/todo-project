@@ -60,6 +60,27 @@ pub async fn create_task(
             .into_response();
     }
 
+    let title_length = payload.title.trim().chars().count();
+    if title_length < 3 {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ErrorResponse {
+                error: "Title must be at least 3 characters long".to_string(),
+            }),
+        )
+            .into_response();
+    }
+
+    if title_length > 120 {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(ErrorResponse {
+                error: "Title must be no more than 120 characters long".to_string(),
+            }),
+        )
+            .into_response();
+    }
+
     let status = match payload.status.as_deref() {
         Some("todo") | Some("doing") | Some("done") => {
             payload.status.clone().unwrap()
