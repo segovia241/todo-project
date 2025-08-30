@@ -1,13 +1,17 @@
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useTask } from "../contexts/TaskContext"
 import { X, Calendar, Flag, Folder, Tag, Plus } from "lucide-react"
 import type { Task } from "../lib/types"
+import { API_BASE_URL } from "../lib/config"
 
 interface TaskFormProps {
   onClose: () => void
   task?: Task
+}
+
+interface PastDatesConfig {
+  past_dates_enabled: boolean
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
@@ -23,6 +27,29 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
   })
   const [newTag, setNewTag] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [pastDatesEnabled, setPastDatesEnabled] = useState<boolean | null>(null)
+  const [dateError, setDateError] = useState("")
+
+  useEffect(() => {
+    const fetchPastDatesConfig = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/tasks/config/past-dates-enabled`)
+        if (response.ok) {
+          const config: PastDatesConfig = await response.json()
+          console.log(response)
+          setPastDatesEnabled(config.past_dates_enabled)
+        } else {
+          console.error("Failed to fetch past dates configuration")
+          setPastDatesEnabled(false)
+        }
+      } catch (error) {
+        console.error("Error fetching past dates configuration:", error)
+        setPastDatesEnabled(false)
+      }
+    }
+
+    fetchPastDatesConfig()
+  }, [])
 
   const formatDateForAPI = (dateString: string): string => {
     if (!dateString) return ""
@@ -31,9 +58,40 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
     return date.toISOString()
   }
 
+  const validateDate = (dateString: string): boolean => {
+    if (!dateString) return true
+    
+    const selectedDate = new Date(dateString)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0) // Reset time to compare only dates
+    
+    if (selectedDate < today && pastDatesEnabled === false) {
+      setDateError("Past dates are not allowed")
+      return false
+    }
+    
+    setDateError("")
+    return true
+  }
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const dateValue = e.target.value
+    setFormData({ ...formData, due_date: dateValue })
+    
+    // Validate date in real-time
+    if (pastDatesEnabled !== null) {
+      validateDate(dateValue)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.title.trim()) return
+
+    // Validate date before submission
+    if (formData.due_date && !validateDate(formData.due_date)) {
+      return
+    }
 
     setIsLoading(true)
     try {
@@ -75,6 +133,17 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
       ...formData,
       tags: formData.tags.filter((tag) => tag !== tagToRemove),
     })
+  }
+
+  // Show loading while fetching configuration
+  if (pastDatesEnabled === null) {
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-custom flex items-center justify-center p-4 z-50">
+        <div className="glass-dark rounded-2xl p-6 w-full max-w-md text-center">
+          <p className="text-gray-300">Loading configuration...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -153,13 +222,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
             <label className="block text-sm font-medium text-gray-300 mb-2">
               <Calendar className="w-4 h-4 inline mr-1" />
               Due Date
+              {!pastDatesEnabled && (
+                <span className="text-xs text-gray-400 ml-2">(Past dates not allowed)</span>
+              )}
             </label>
             <input
               type="date"
               value={formData.due_date}
-              onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+              onChange={handleDateChange}
+              min={!pastDatesEnabled ? new Date().toISOString().split('T')[0] : undefined}
               className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-custom"
             />
+            {dateError && (
+              <p className="text-red-400 text-xs mt-1">{dateError}</p>
+            )}
           </div>
 
           {/* Project */}
@@ -228,9 +304,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ onClose, task }) => {
           <div className="flex gap-3 pt-4">
             <button
               type="submit"
-              disabled={isLoading || !formData.title.trim()}
+              disabled={isLoading || !formData.title.trim() || !!dateError}
               className={`flex-1 text-white py-2 rounded-lg font-medium transition-all duration-200 shadow-sm
-      ${isLoading || !formData.title.trim()
+      ${isLoading || !formData.title.trim() || !!dateError
                   ? "bg-secondary opacity-50 cursor-not-allowed"
                   : "bg-primary hover:opacity-90"
                 }`}

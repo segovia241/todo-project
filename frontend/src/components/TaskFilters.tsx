@@ -149,34 +149,6 @@ const TaskFilters = () => {
           </div>
         </div>
 
-        {tags && tags.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-              <Tag className="w-4 h-4" />
-              Tags
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => {
-                const isSelected = filters.tags?.includes(tag.display_name) || false
-                return (
-                  <button
-                    key={tag.id}
-                    onClick={() => toggleTagFilter(tag.display_name)}
-                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
-                      isSelected
-                        ? "text-white bg-[#0dab76] border border-[#0dab76]"
-                        : "text-[#0081a7] bg-[#0081a7]/10 border border-[#0081a7]/20 hover:bg-[#0081a7]/20"
-                    }`}
-                  >
-                    <Tag className="w-3 h-3" />
-                    {tag.display_name}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
         {/* Sort */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">Sort by</label>
